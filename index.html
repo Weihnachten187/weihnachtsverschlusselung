@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weihnachtliche Caesar-Verschlüsselung</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 50%, #0f2419 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            color: white;
+            font-size: 1.5em;
+            opacity: 0.8;
+            animation: fall linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 50px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            position: relative;
+            z-index: 10;
+            border: 5px solid #c41e3a;
+        }
+
+        .ornament {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .ornament-1 {
+            background: #c41e3a;
+            top: -20px;
+            left: 30px;
+        }
+
+        .ornament-2 {
+            background: #ffd700;
+            top: -20px;
+            right: 30px;
+        }
+
+        .ornament-3 {
+            background: #228b22;
+            bottom: -20px;
+            left: 50px;
+        }
+
+        .ornament-4 {
+            background: #c41e3a;
+            bottom: -20px;
+            right: 50px;
+        }
+
+        h1 {
+            color: #c41e3a;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .star {
+            color: #ffd700;
+            font-size: 1.2em;
+        }
+
+        .progress {
+            text-align: center;
+            color: #228b22;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .question-box {
+            background: linear-gradient(135deg, #c41e3a 0%, #a01729 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 20px rgba(196, 30, 58, 0.3);
+        }
+
+        .question-box h2 {
+            font-size: 1.5em;
+            line-height: 1.6;
+        }
+
+        .answer-section {
+            margin-bottom: 30px;
+        }
+
+        input[type="text"], input[type="number"], textarea {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 3px solid #228b22;
+            border-radius: 15px;
+            outline: none;
+            transition: all 0.3s;
+            font-family: 'Georgia', serif;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            background: linear-gradient(135deg, #228b22 0%, #1a6b1a 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(34, 139, 34, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(34, 139, 34, 0.4);
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+            display: block;
+        }
+
+        .tipp-button {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+            margin-top: 15px;
+        }
+
+        .tipp-box {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffc107;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .mode-section {
+            margin-top: 30px;
+        }
+
+        .mode-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            color: #2d5a3d;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .result {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 3px solid #28a745;
+            padding: 25px;
+            border-radius: 20px;
+            margin-top: 25px;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .result h3 {
+            color: #155724;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .result p {
+            color: #155724;
+            font-size: 1.3em;
+            word-break: break-word;
+            line-height: 1.6;
+            font-weight: bold;
+        }
+
+        .alphabet-display {
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e9 100%);
+            border-radius: 15px;
+            border: 3px solid #228b22;
+        }
+
+        .alphabet-display h3 {
+            color: #2d5a3d;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+
+        .alphabet-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .letter-pair {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-width: 45px;
+        }
+
+        .original {
+            color: #2d5a3d;
+            font-weight: bold;
+            font-size: 1.2em;
+            font-family: monospace;
+        }
+
+        .shifted {
+            color: #c41e3a;
+            font-weight: bold;
+            font-size: 1.2em;
+            font-family: monospace;
+        }
+
+        .arrow {
+            color: #0e0e10;
+            font-size: 0.8em;
+        }
+
+        .direction-toggle {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .direction-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .direction-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .direction-label {
+            display: block;
+            padding: 15px;
+            background: white;
+            border: 3px solid #228b22;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #2d5a3d;
+        }
+
+        .direction-option input[type="radio"]:checked + .direction-label {
+            background: linear-gradient(135deg, #228b22 0%, #1a6b1a 100%);
+            color: white;
+            border-color: #1a6b1a;
+            box-shadow: 0 5px 15px rgba(34, 139, 34, 0.3);
+        }
+
+        .direction-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(34, 139, 34, 0.2);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="ornament ornament-1"></div>
+    <div class="ornament ornament-2"></div>
+    <div class="ornament ornament-3"></div>
+    <div class="ornament ornament-4"></div>
+
+    <!-- Quiz Section -->
+    <div id="quizSection">
+        <h1><span class="star">★</span> Caesar-Verschlüsselung <span class="star">★</span></h1>
+        <div class="progress">
+            <span id="progressText">Frage 1 von 2</span>
+        </div>
+
+        <div id="question1">
+            <div class="question-box">
+                <h2>🔐 Welche Verschlüsselung kennst du?</h2>
+            </div>
+            <div class="answer-section">
+                <input type="text" id="answer1" placeholder="Gib deine Antwort hier ein...">
+            </div>
+            <button onclick="checkQuestion1()">Antwort überprüfen ✨</button>
+            <button id="tipp1Button" class="tipp-button hidden" onclick="showTipp1()">💡 Tipp anzeigen</button>
+            <div id="tipp1Box" class="tipp-box">
+                <strong>💡 Tipp:</strong> Rom Geschichte!
+            </div>
+            <div id="feedback1" class="feedback"></div>
+        </div>
+
+        <div id="question2" class="hidden">
+            <div class="question-box">
+                <h2>🔢 Wie viele Buchstaben hat das Alphabet?</h2>
+            </div>
+            <div class="answer-section">
+                <input type="number" id="answer2" placeholder="Gib deine Antwort hier ein...">
+            </div>
+            <button onclick="checkQuestion2()">Antwort überprüfen ✨</button>
+            <button id="tipp2Button" class="tipp-button hidden" onclick="showTipp2()">💡 Tipp anzeigen</button>
+            <div id="tipp2Box" class="tipp-box">
+                <strong>💡 Tipp:</strong> Das deutsche Alphabet hat genau so viele Buchstaben wie das englische - von A bis Z!
+            </div>
+            <div id="feedback2" class="feedback"></div>
+        </div>
+    </div>
+
+    <!-- Mode Selection -->
+    <div id="modeSelection" class="hidden">
+        <h1><span class="star">★</span> Wähle deinen Weg <span class="star">★</span></h1>
+        <div class="question-box">
+            <h2>🎄 Wie möchtest du entschlüsseln? 🎁</h2>
+        </div>
+        <div class="mode-buttons">
+            <button onclick="selectMode('easy')">🎄 Einfacher Weg</button>
+            <button onclick="selectMode('hard')">⭐ Schwerer Weg</button>
+        </div>
+    </div>
+
+    <!-- Easy Mode -->
+    <div id="easyMode" class="hidden">
+        <h1><span class="star">★</span> Einfacher Weg <span class="star">★</span></h1>
+        <div class="question-box">
+            <h2>🎄 Automatische Entschlüsselung</h2>
+        </div>
+
+        <label>Verschlüsselter Text:</label>
+        <textarea id="easyText" placeholder="z.B. Hftdifol 1 jo nfjofn Ajnnfs (ofv)"></textarea>
+
+        <label>Verschiebung (1-25):</label>
+        <input type="number" id="easyShift" min="1" max="25" placeholder="z.B. 1">
+
+        <label>Ist der Text rückwärts geschrieben?</label>
+        <div class="direction-toggle">
+            <div class="direction-option">
+                <input type="radio" id="directionForward" name="direction" value="forward" checked>
+                <label for="directionForward" class="direction-label">→ Vorwärts geschrieben</label>
+            </div>
+            <div class="direction-option">
+                <input type="radio" id="directionBackward" name="direction" value="backward">
+                <label for="directionBackward" class="direction-label">← Rückwärts geschrieben</label>
+            </div>
+        </div>
+
+        <button onclick="decryptEasy()" style="margin-top: 20px;">Entschlüsseln ✨</button>
+
+        <div id="easyResult" class="result hidden">
+            <h3>🎁 Entschlüsselter Text:</h3>
+            <p id="easyResultText"></p>
+        </div>
+
+        <button onclick="backToModeSelection()" style="margin-top: 20px; background: linear-gradient(135deg, #6c757d 0%, #495057 100%);">⬅️ Zurück zur Auswahl</button>
+    </div>
+
+    <!-- Hard Mode -->
+    <div id="hardMode" class="hidden">
+        <h1><span class="star">★</span> Schwerer Weg <span class="star">★</span></h1>
+        <div class="question-box">
+            <h2>⭐ Manuell mit Alphabet</h2>
+        </div>
+
+        <div class="alphabet-display">
+            <h3>Original Alphabet:</h3>
+            <div class="alphabet-row" id="originalAlphabet"></div>
+        </div>
+
+        <label>Verschiebung (1-25):</label>
+        <input type="number" id="hardShift" min="1" max="25" placeholder="z.B. 1">
+
+        <button onclick="showShiftedAlphabet()">Verschobenes Alphabet anzeigen 🔄</button>
+
+        <div id="shiftedAlphabetContainer" class="hidden">
+            <div class="alphabet-display">
+                <h3>Verschobenes Alphabet:</h3>
+                <div class="alphabet-row" id="shiftedAlphabet"></div>
+            </div>
+
+            <label>Verschlüsselter Text:</label>
+            <textarea id="hardText" placeholder="z.B. Hftdifol 1 jo nfjofn Ajnnfs (ofv)"></textarea>
+
+            <label>Entschlüsselter Text (trage Buchstabe für Buchstabe ein):</label>
+            <textarea id="hardResult" placeholder="Hier trägst du den entschlüsselten Text ein..."></textarea>
+
+            <div style="background: #fff3cd; color: #856404; border: 2px solid #ffc107; padding: 20px; border-radius: 15px; margin-top: 20px;">
+                <strong>💡 So funktioniert's:</strong> Schaue dir das verschobene Alphabet an. Wenn im verschlüsselten Text ein <strong style="color: #c41e3a;">H</strong> steht, suche es im verschobenen (roten) Alphabet und schreibe den darüberstehenden <strong style="color: #2d5a3d;">grünen</strong> Buchstaben auf!
+            </div>
+        </div>
+
+        <button onclick="backToModeSelection()" style="margin-top: 20px; background: linear-gradient(135deg, #6c757d 0%, #495057 100%);">⬅️ Zurück zur Auswahl</button>
+    </div>
+</div>
+
+<script>
+    // Schneeflocken Animation
+    function createSnowflake() {
+        const snowflake = document.createElement('div');
+        snowflake.classList.add('snowflake');
+        snowflake.innerHTML = '❄';
+        snowflake.style.left = Math.random() * 100 + '%';
+        snowflake.style.animationDuration = Math.random() * 3 + 5 + 's';
+        snowflake.style.opacity = Math.random() * 0.6 + 0.4;
+        snowflake.style.fontSize = Math.random() * 1 + 0.5 + 'em';
+        document.body.appendChild(snowflake);
+
+        setTimeout(() => {
+            snowflake.remove();
+        }, 8000);
+    }
+
+    setInterval(createSnowflake, 300);
+
+    let wrongAttempts1 = 0;
+    let wrongAttempts2 = 0;
+    let currentQuestion = 1;
+
+    // Frage 1 prüfen - NUR "caesar" ist richtig
+    function checkQuestion1() {
+        const answer = document.getElementById('answer1').value.trim().toLowerCase();
+        const feedback = document.getElementById('feedback1');
+
+        if (answer === 'caesar') {
+            feedback.className = 'feedback correct';
+            feedback.innerHTML = '🎉 Richtig! Das ist die Caesar-Verschlüsselung! 🎄';
+
+            setTimeout(() => {
+                document.getElementById('question1').classList.add('hidden');
+                document.getElementById('question2').classList.remove('hidden');
+                document.getElementById('progressText').textContent = 'Frage 2 von 2';
+                currentQuestion = 2;
+            }, 1500);
+        } else if (answer === '') {
+            feedback.className = 'feedback incorrect';
+            feedback.innerHTML = '⚠️ Bitte gib eine Antwort ein!';
+        } else {
+            wrongAttempts1++;
+            feedback.className = 'feedback incorrect';
+            feedback.innerHTML = '❌ Leider falsch! Versuche es noch einmal! 🎅';
+
+            if (wrongAttempts1 >= 3) {
+                document.getElementById('tipp1Button').classList.remove('hidden');
+            }
+        }
+    }
+
+    // Frage 2 prüfen
+    function checkQuestion2() {
+        const answer = parseInt(document.getElementById('answer2').value);
+        const feedback = document.getElementById('feedback2');
+
+        if (answer === 26) {
+            feedback.className = 'feedback correct';
+            feedback.innerHTML = '🎉 Richtig! Das Alphabet hat 26 Buchstaben! 🎄';
+
+            setTimeout(() => {
+                document.getElementById('quizSection').classList.add('hidden');
+                document.getElementById('modeSelection').classList.remove('hidden');
+            }, 1500);
+        } else if (!answer) {
+            feedback.className = 'feedback incorrect';
+            feedback.innerHTML = '⚠️ Bitte gib eine Zahl ein!';
+        } else {
+            wrongAttempts2++;
+            feedback.className = 'feedback incorrect';
+            feedback.innerHTML = '❌ Leider falsch! Versuche es noch einmal! 🎅';
+
+            if (wrongAttempts2 >= 3) {
+                document.getElementById('tipp2Button').classList.remove('hidden');
+            }
+        }
+    }
+
+    // Tipps anzeigen
+    function showTipp1() {
+        document.getElementById('tipp1Box').style.display = 'block';
+        document.getElementById('tipp1Button').classList.add('hidden');
+    }
+
+    function showTipp2() {
+        document.getElementById('tipp2Box').style.display = 'block';
+        document.getElementById('tipp2Button').classList.add('hidden');
+    }
+
+    // Enter-Taste zum Absenden
+    document.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            if (currentQuestion === 1 && !document.getElementById('question1').classList.contains('hidden')) {
+                checkQuestion1();
+            } else if (currentQuestion === 2 && !document.getElementById('question2').classList.contains('hidden')) {
+                checkQuestion2();
+            }
+        }
+    });
+
+    // Mode Selection
+    function selectMode(mode) {
+        document.getElementById('modeSelection').classList.add('hidden');
+
+        if (mode === 'easy') {
+            document.getElementById('easyMode').classList.remove('hidden');
+        } else {
+            document.getElementById('hardMode').classList.remove('hidden');
+            displayOriginalAlphabet();
+        }
+    }
+
+    function backToModeSelection() {
+        document.getElementById('easyMode').classList.add('hidden');
+        document.getElementById('hardMode').classList.add('hidden');
+        document.getElementById('modeSelection').classList.remove('hidden');
+
+        // Reset
+        document.getElementById('easyResult').classList.add('hidden');
+        document.getElementById('shiftedAlphabetContainer').classList.add('hidden');
+        document.getElementById('easyText').value = '';
+        document.getElementById('easyShift').value = '';
+        document.getElementById('hardText').value = '';
+        document.getElementById('hardShift').value = '';
+        document.getElementById('hardResult').value = '';
+    }
+
+    // Original Alphabet anzeigen
+    function displayOriginalAlphabet() {
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const container = document.getElementById('originalAlphabet');
+        container.innerHTML = '';
+
+        for (let letter of alphabet) {
+            const pair = document.createElement('div');
+            pair.className = 'letter-pair';
+            pair.innerHTML = `<span class="original">${letter}</span>`;
+            container.appendChild(pair);
+        }
+    }
+
+    // Verschobenes Alphabet anzeigen
+    function showShiftedAlphabet() {
+        const shift = parseInt(document.getElementById('hardShift').value);
+
+        if (!shift || shift < 1 || shift > 25) {
+            alert('Bitte gib eine Verschiebung zwischen 1 und 25 ein!');
+            return;
+        }
+
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const container = document.getElementById('shiftedAlphabet');
+        container.innerHTML = '';
+
+        for (let i = 0; i < alphabet.length; i++) {
+            const shiftedIndex = (i + shift) % 26;
+            const pair = document.createElement('div');
+            pair.className = 'letter-pair';
+            pair.innerHTML = `
+                <span class="original">${alphabet[i]}</span>
+                <span class="arrow">↓</span>
+                <span class="shifted">${alphabet[shiftedIndex]}</span>
+            `;
+            container.appendChild(pair);
+        }
+
+        document.getElementById('shiftedAlphabetContainer').classList.remove('hidden');
+    }
+
+    // Caesar Entschlüsselung
+    function caesarDecrypt(text, shift) {
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        let result = '';
+
+        for (let char of text) {
+            const upperChar = char.toUpperCase();
+            if (alphabet.includes(upperChar)) {
+                const oldIndex = alphabet.indexOf(upperChar);
+                const newIndex = (oldIndex - shift + 26) % 26;
+
+                // Groß-/Kleinschreibung beibehalten
+                if (char === char.toLowerCase()) {
+                    result += alphabet[newIndex].toLowerCase();
+                } else {
+                    result += alphabet[newIndex];
+                }
+            } else {
+                result += char;
+            }
+        }
+
+        return result;
+    }
+
+    // Text rückwärts drehen
+    function reverseText(text) {
+        return text.split('').reverse().join('');
+    }
+
+    // Einfacher Weg - Entschlüsseln
+    function decryptEasy() {
+        let text = document.getElementById('easyText').value;
+        const shift = parseInt(document.getElementById('easyShift').value);
+        const direction = document.querySelector('input[name="direction"]:checked').value;
+
+        if (!text) {
+            alert('Bitte gib einen Text ein!');
+            return;
+        }
+
+        if (!shift || shift < 1 || shift > 25) {
+            alert('Bitte gib eine Verschiebung zwischen 1 und 25 ein!');
+            return;
+        }
+
+        // Wenn Text rückwärts geschrieben ist, erst umdrehen
+        if (direction === 'backward') {
+            text = reverseText(text);
+        }
+
+        // Dann Caesar-Entschlüsselung
+        const result = caesarDecrypt(text, shift);
+
+        document.getElementById('easyResultText').textContent = result;
+        document.getElementById('easyResult').classList.remove('hidden');
+    }
+</script>
+</body>
+</html>
